@@ -129,3 +129,38 @@ router.route("/:id").delete(deleteTransaction);
 - All the routes are setup, next step is to bring in the model and setup database.
 
 ---
+
+## Database
+
+### Connecting to Database
+
+- Sign up for mongodb Atlas online.
+- Start a new project. Create a `cluster` on mongodb Atlas online. Go to collections and create a database `expensetracker` and collection `tranaction`.
+- To connect o the database, choose the option "Connect Your Application" and copy the connection string. Paste it under the name of MONGO_URI in config.env file. Replace the pasword and database name.
+- Create a `db.js` file in config folder, and connect to dtabase from here:
+  - whenever we make a call to connect to database, it will return a promise so we use async/await and try/catch blocks to catch any errors.
+
+```javascript
+const mongoose = require("mongoose");
+
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useCreateIndex: true,
+      useUnifiedTopology: true,
+    });
+
+    console.log(
+      `MongoDB Connected: ${conn.connection.host}`.cyan.underline.bold
+    );
+  } catch (err) {
+    console.log(`Error: ${err.message}`.red);
+    process.exit(1);
+  }
+};
+
+module.exports = connectDB;
+```
+
+- import the connectDB in server.js and run it.
