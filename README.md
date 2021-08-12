@@ -476,3 +476,37 @@ useEffect(() => {
   ```
 
     </details>
+
+### ADD Transaction
+
+- Write a dispatch function for adding the transaction, and set the content-type of axios POST request to the `application/json` in `headers` object.
+    <details>
+    <summary>Click to expand</summary>
+
+  ```javascript
+  async function addTransaction(transaction) {
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    try {
+      const res = await axios.post("/api/v1/transactions", transaction, config);
+
+      dispatch({
+        type: "ADD_TRANSACTION",
+        payload: res.data.data,
+      });
+    } catch (err) {
+      dispatch({
+        type: "TRANSACTION_ERROR",
+        payload: err.response.data.error,
+      });
+    }
+  }
+  ```
+
+    </details>
+
+---
