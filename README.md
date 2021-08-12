@@ -509,4 +509,17 @@ useEffect(() => {
 
     </details>
 
+> Make a utils folder and add the script for inserting commas.
+
 ---
+
+## Production build
+
+- Right now we are running the react dev server.
+  -CD into client folder and run `npm build` which will create a build folder with all the static assets including the index.html that we can deploy.
+- cd.. back into the server, navigate to the server.js. We want to have a route for the root that will load build's folder index.html that is our single page application.
+- change the NODE_ENV to production in config
+- Require the `path` module in server.js and go below the API routes.
+- set the static folder to be a build folder inside client.
+- if we hit any other route aside form API routes, then we will load the `index.html` i.e. entry point to the react application.
+- `npm start` script will run the app in production if we deploy on Heroku or other hosting services. It will run the server, but not the dev server. http://localhost:5000/ will have our app running in production.
