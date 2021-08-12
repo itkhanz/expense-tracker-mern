@@ -163,4 +163,32 @@ const connectDB = async () => {
 module.exports = connectDB;
 ```
 
-- import the connectDB in server.js and run it.
+- import the connectDB in server.js and run it. verify the connection from terminal output.
+
+### Creating Model
+
+- create a TransactionSchema, ID will be created automatically by the mongoDB.
+
+```javascript
+const mongoose = require("mongoose");
+
+const TransactionSchema = new mongoose.Schema({
+  text: {
+    type: String,
+    trim: true, //trims any whitespace
+    required: [true, "Please add some text"],
+  },
+  amount: {
+    type: Number,
+    required: [true, "Please add a positive or negative number"],
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+module.exports = mongoose.model("Transaction", TransactionSchema);
+```
+
+- import the Transaction model inside the transactions.js controller. We can use the mongoose methods like find, create and remove on database.
