@@ -6,7 +6,7 @@
 - Clone the react app and move all the dolers/files into a `client` folder.
 - All the server code controllers and routes etc will be in the root directory.
 - start a project with `npm init`.
-- Install the dependencies with `npm i express dotenv mongoose colors morgan (logs the http methods in console)`
+- Install the dependencies with `npm i express dotenv mongoose colors morgan (logs the http methods, url, status code, and time taken for the request in console)`
 - Install the dev dependencies with `npm i -D nodemon concurrently`. nodemon will allows us to run the server without having to restart, and concurrently will allow us to run the backend and frontend react server on seprate ports at same time with single npm script.
 - Add scripts (server.js is the main entry point for our app):
   ```javascripts
@@ -15,8 +15,8 @@
       "server": "nodemon server"    //development
     }
   ```
-- Create a basic `server.js` file and `config.env` to store the environment variables:
-  <details>
+- Create a basic `server.js` file and `config.env` to store the environment variables.
+- <details>
       <summary>Click to expand</summary>
 
   ```javascript
@@ -346,5 +346,103 @@ module.exports = mongoose.model("Transaction", TransactionSchema);
 - To run the backend and react frontend server concurrently, go to the package.json of client and add a proxy `"proxy": "http://localhost:5000"`
 - Go ther package.json of server and add a script to run the client. To run the react frontend, we need to add `"client": "npm start --prefix client"` sctipt.
 - Add another script to run both servers using concurrently `"dev": "concurrently \"npm run server\" \"npm run client\""`
-- run the backend and frontend servers with the `npm run dev`.
+
+```
+ "scripts": {
+    "start": "node server",
+    "server": "nodemon server",
+    "client": "npm start --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  }
+```
+
+- run the backend and frontend servers with the `npm run dev`. It will open up the frontend in browser on http://localhost:3000/, as well as the backend server that we can test by making POSTMAN request.
 - This setup is only for the development purposes.
+
+---
+
+## Intergrate Backend with Frontend
+
+- To make requests, cd into the client and `npm install axios`.
+- Navigate to the `GlobalState.js` in client, and from there we will be making calls to backend via actions.
+- change all the actions to async functions.
+
+### GET Transactions
+
+- currently we have a transactions state and we are sending it down to the components with the `Provider`.
+- Create a new action to fetch from the backend.
+
+  > Dont need to put http://localhost:5000 because we added that in proxy
+
+  - `res.data` will give us the enrtire object including success, count and data. Use `res.data.data` to grab the transactions array only.
+  - Initially the transactions array is empty, dispatch the data to reducer to update the global state.
+  - add `error` and `loading` as initial state to catch and display any errors, and spinner on making the request.
+    ```javascript
+    // Initial state
+    const initialState = {
+      transactions: [],
+      error: null,
+      loading: true,
+    };
+    ```
+  - In case of an error, we need to send the error messages as payload which we can acess via `err.response.data` object and further selecting the `error` from the object that has both the `success` and `error` sent from the backend.
+    <details>
+    <summary>Click to expand</summary>
+
+    ```javascript
+    async function getTransactions() {
+      try {
+        const res = await axios.get("/api/v1/transactions");
+
+        dispatch({
+          type: "GET_TRANSACTIONS",
+          payload: res.data.data,
+        });
+      } catch (err) {
+        dispatch({
+          type: "TRANSACTION_ERROR",
+          payload: err.response.data.error,
+        });
+      }
+    }
+    ```
+
+    </details>
+
+- create this action in the `reducer`:
+
+  - set the `loading` to false and set the `transactions` to payload
+
+  ```javascript
+  case 'GET_TRANSACTIONS':
+      return {
+        ...state,
+        loading: false,
+        transactions: action.payload
+      }
+  ```
+
+  - Also define an action for the error, and set the error to payload.
+
+  ```javascript
+  case "TRANSACTION_ERROR":
+      return {
+        ...state,
+        error: action.payload,
+      };
+  ```
+
+- Pass the `getTranasatcions` function as well as `error` and `loading` state to the `GlobalContext.Provider`.
+
+- To be able to fetch the transactions, we need to call the `getTransaction` function that we will call from the `TransactionList` component.
+
+- Call it under `useEffect` hook which is used for making any async http requests. To avoid running in an endless loop, we add an empty [] as second argument to the hook, and stop the warning from fireoff that says to put `getTransactions` inside [] wchich will result in an endless loop.
+
+```javascript
+useEffect(() => {
+  getTransactions();
+  //  eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
+```
+
+- Now we are successfully fetching the transactions form the backend app into react application.
