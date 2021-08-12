@@ -340,3 +340,11 @@ module.exports = mongoose.model("Transaction", TransactionSchema);
 - Now we can successfully add get and delete our transactions from the database by making requests via POSTMAN. Now we want to make the requests fromour React frontend.
 
 ---
+
+## Running the backend and frontend servers concurrently
+
+- To run the backend and react frontend server concurrently, go to the package.json of client and add a proxy `"proxy": "http://localhost:5000"`
+- Go ther package.json of server and add a script to run the client. To run the react frontend, we need to add `"client": "npm start --prefix client"` sctipt.
+- Add another script to run both servers using concurrently `"dev": "concurrently \"npm run server\" \"npm run client\""`
+- run the backend and frontend servers with the `npm run dev`.
+- This setup is only for the development purposes.
