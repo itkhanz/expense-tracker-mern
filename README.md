@@ -446,3 +446,33 @@ useEffect(() => {
 ```
 
 - Now we are successfully fetching the transactions form the backend app into react application.
+
+### DELETE Transactions
+
+- Deleting the transaction will remove all the transactions beacause in mongoDB, the id is stored as `_id` and we filter on the basis of id
+  `transactions: state.transactions.filter( (transaction) => transaction.id !== action.payload ) `
+- Go to the `Transaction` component and call the `deleteTransaction(transaction._id)` on the onClick of delete button. Also change it in the `Reducer`.
+- It soolves the problem and deletes the transaction from the UI but not from the backend, so we write an async function to make a call to delete route:
+
+    <details>
+    <summary>Click to expand</summary>
+
+  ```javascript
+  async function deleteTransaction(id) {
+    try {
+      await axios.delete(`/api/v1/transactions/${id}`);
+
+      dispatch({
+        type: "DELETE_TRANSACTION",
+        payload: id,
+      });
+    } catch (err) {
+      dispatch({
+        type: "TRANSACTION_ERROR",
+        payload: err.response.data.error,
+      });
+    }
+  }
+  ```
+
+    </details>
