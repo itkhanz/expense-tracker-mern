@@ -46,4 +46,86 @@
 
 - Start the server with `npm run server`
 - Make a get request to http://localhost:5000/ in POSTMAN to see if the server is running correctly.
--
+- Now we have a basic server setup
+
+---
+
+## Setting Up routes and dummy controllers
+
+- Create routes and controllers that will have methods to interact with database.
+- Make a router for the trasnactions.js:
+
+```javascript
+const express = require("express");
+const router = express.Router();
+
+// The "/" will pretain to "/api/v1/transactions" route
+router.get("/", (req, res) => res.send("hello"));
+
+module.exports = router;
+```
+
+- Import this router in server.js. Whenever we make a request to this address, it will direct us to the transactions.js file
+
+```javascript
+const transactionRoutes = require("./routes/transactions");
+
+// app.get("/", (req, res) => res.send("Hello"));
+app.use("/api/v1/transactions", transactionRoutes);
+```
+
+- Check by making a request to http://localhost:5000/api/v1/transactions in POSTMAN to verify you are getting `hello` back.
+
+- Define all the methods in a seprate controllers/transactions.s file to interact with the model and database.
+
+```javascript
+//  @desc Get all transactions
+//  @route GET /api/v1/transactions
+//  @access Public
+exports.getTransactions = (req, res, next) => {
+  res.send("GET tranactions");
+};
+```
+
+- import the getTransactions controller in the routes. Any time we make a get request to the '/', it will hit the '/api/v1/transactions/' and call the getTransactions controller method. Verify by making a GET request in POSTMAN.
+
+```javascript
+const { getTransactions } = require("../controllers/transactions");
+
+// router.get("/", (req, res) => res.send("hello"));
+router.route("/").get(getTransactions);
+```
+
+- Make the controllers for adding and deleting the trnsactions in a similar way and test the routes in POSTMAN.
+
+```javascript
+//  @desc Add transaction
+//  @route POST /api/v1/transactions
+//  @access Public
+exports.addTransaction = (req, res, next) => {
+  res.send("POST tranaction");
+};
+
+//  @desc Delete transaction
+//  @route DELETE /api/v1/transactions
+//  @access Public
+exports.deleteTransaction = (req, res, next) => {
+  res.send("DELETE tranaction");
+};
+```
+
+```javascript
+const {
+  getTransactions,
+  addTransaction,
+  deleteTransaction,
+} = require("../controllers/transactions");
+
+router.route("/").get(getTransactions).post(addTransaction);
+
+router.route("/:id").delete(deleteTransaction);
+```
+
+- All the routes are setup, next step is to bring in the model and setup database.
+
+---
