@@ -191,4 +191,152 @@ const TransactionSchema = new mongoose.Schema({
 module.exports = mongoose.model("Transaction", TransactionSchema);
 ```
 
+---
+
+## Controllers
+
 - import the Transaction model inside the transactions.js controller. We can use the mongoose methods like find, create and remove on database.
+- change all the controollers to async functions since m ongoose methods return promise
+
+- use the Mongoose find method to get all the transactions for `getTransaction` controller.
+
+- Verify the connection in POSTMAN to see if we are getting back the data:
+  <details>
+    <summary>Click to expand</summary>
+
+  ```javascript
+  exports.getTransactions = async (req, res, next) => {
+    try {
+      const transactions = await Transaction.find();
+
+      return res.status(200).json({
+        success: true,
+        count: transactions.length,
+        data: transactions,
+      });
+    } catch (err) {
+      return res.status(500).json({
+        success: false,
+        error: "Server Error",
+      });
+    }
+  };
+  ```
+
+  </details>
+
+- The `addTransaction` will need to use the req.body to access the client's data. In order to use it, add the bodyparser middlware in server.js `app.use(express.json())`
+
+  - Test in POSTMAN, add the raw JSON data under the BODY:
+
+  ```
+  {
+    "text": "salary",
+    "amount": 500
+  }
+  ```
+
+  - and make a POST request, we will get back our data:
+
+  ```
+  {
+    "success": true,
+    "data": {
+        "_id": "6115451f0c76fd30e0278d52",
+        "text": "salary",
+        "amount": 500,
+        "createdAt": "2021-08-12T15:58:23.635Z",
+        "__v": 0
+    }
+  }
+  ```
+
+  - if we dont send the required fields, we need to handle the validation error. Test in POSTMAN by making a POST request without any data in body and we get back the messages:
+
+  ```
+  {
+    "success": false,
+    "error": [
+        "Please add a positive or negative number",
+        "Please add some text"
+    ]
+  }
+  ```
+
+  - we can also see the data in collection online in mongodb atlas.
+
+  <details>
+    <summary>Click to expand</summary>
+
+  ```javascript
+  exports.addTransaction = async (req, res, next) => {
+    try {
+      const { text, amount } = req.body;
+
+      const transaction = await Transaction.create(req.body);
+
+      return res.status(201).json({
+        success: true,
+        data: transaction,
+      });
+    } catch (err) {
+      if (err.name === "ValidationError") {
+        const messages = Object.values(err.errors).map((val) => val.message);
+
+        return res.status(400).json({
+          success: false,
+          error: messages,
+        });
+      } else {
+        return res.status(500).json({
+          success: false,
+          error: "Server Error",
+        });
+      }
+    }
+  };
+  ```
+
+  </details>
+
+- for the `deleteTransaction` controller first check to see if the transactions exist by the mongoose `findByID`,and later delete it with `remove` method.
+
+  > Some methods like "findById" are called on the model, and some like "remove" are called on the resource.
+
+  - Test in POSTMAN by copying the ID of any transaction item and making a DELETE request to see if it is removed.
+
+  <details>
+    <summary>Click to expand</summary>
+
+  ```javascript
+  exports.deleteTransaction = async (req, res, next) => {
+    try {
+      const transaction = await Transaction.findById(req.params.id);
+
+      if (!transaction) {
+        return res.status(404).json({
+          success: false,
+          error: "No transaction found",
+        });
+      }
+
+      await transaction.remove();
+
+      return res.status(200).json({
+        success: true,
+        data: {},
+      });
+    } catch (err) {
+      return res.status(500).json({
+        success: false,
+        error: "Server Error",
+      });
+    }
+  };
+  ```
+
+  </details>
+
+- Now we can successfully add get and delete our transactions from the database by making requests via POSTMAN. Now we want to make the requests fromour React frontend.
+
+---

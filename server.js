@@ -11,6 +11,7 @@ connectDB();
 const transactionRoutes = require("./routes/transactions");
 
 const app = express();
+app.use(express.json());
 
 // app.get("/", (req, res) => res.send("Hello"));
 app.use("/api/v1/transactions", transactionRoutes);
