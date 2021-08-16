@@ -1,14 +1,5 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# environment variables
-<<<<<<< HEAD
-config.env
-.env
-.jar
-=======
-.env
->>>>>>> 2b70c44d30c70dc57c10c3fdd9c67ea59629dbb3
-
 # Environment Variables
 config.env
 
