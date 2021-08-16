@@ -1,8 +1,11 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# Environment Variables
-testtwo.env
-testthree.env
+# removes all the instances of this file
+# testtwo.env
+# testthree.env
+
+# remove all files ending with .env
+*.env
 
 # dependencies
 /node_modules
